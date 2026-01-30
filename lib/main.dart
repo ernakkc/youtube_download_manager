@@ -13,11 +13,51 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Youtube Download Manager',
+      title: 'YouTube İndirme Yöneticisi',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // Biraz daha modern, karanlık bir tema yapalım
-        brightness: Brightness.dark,
-        primarySwatch: Colors.red,
+        brightness: Brightness.light,
+        primaryColor: Colors.red[700],
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.red[700],
+          elevation: 0,
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          iconTheme: IconThemeData(color: Colors.white),
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: Colors.white,
+          selectedItemColor: Colors.red[700],
+          unselectedItemColor: Colors.grey[500],
+          selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
+          elevation: 8,
+        ),
+        cardTheme: CardThemeData(
+          elevation: 4,
+          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.red[700],
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red[700],
+            foregroundColor: Colors.white,
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
       ),
       home: AnaSayfa(),
     );
@@ -25,6 +65,8 @@ class MyApp extends StatelessWidget {
 }
 
 class AnaSayfa extends StatefulWidget {
+  const AnaSayfa({super.key});
+
   @override
   _AnaSayfaState createState() => _AnaSayfaState();
 }

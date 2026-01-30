@@ -12,7 +12,7 @@ dependencies:
   dio: ^5.4.0
   path_provider: ^2.1.2
   open_filex: ^4.4.0
-  youtube_results: ^0.1.1
+  youtube_explode_dart: ^2.2.1
 
 dev_dependencies:
   flutter_test:
