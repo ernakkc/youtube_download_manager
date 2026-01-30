@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../services/mock_data.dart';
 import '../models/video_model.dart';
 import '../widgets/video_list_item.dart';
 import '../services/search_service.dart';
@@ -21,7 +20,7 @@ class _AramaEkraniState extends State<AramaEkrani> {
   @override
   void initState() {
     super.initState();
-    _videolar = MockData.getFakeVideos();
+    // Başlangıçta boş liste
   }
 
   Future<void> _aramaYap(String query) async {
@@ -101,7 +100,7 @@ class _AramaEkraniState extends State<AramaEkrani> {
                           onPressed: () {
                             _searchController.clear();
                             setState(() {
-                              _videolar = MockData.getFakeVideos();
+                              _videolar = [];
                             });
                           },
                         ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../models/video_model.dart';
@@ -14,13 +15,34 @@ class VideoListItem extends StatefulWidget {
 
 class _VideoListItemState extends State<VideoListItem> {
   // Kartın hafızası (Durum değişkenleri)
-  bool _isDownloading = false;
   bool _isDownloaded = false;
-  double _progress = 0.0;
   String? _localPath; // İndirilen dosyanın yolu
 
-  // Servisimizi çağıralım
+  // Servisimizi singleton olarak çağıralım
   final DownloadService _downloadService = DownloadService();
+  
+  // Stream subscription
+  StreamSubscription? _downloadSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    // Download stream'i dinle
+    _downloadSubscription = _downloadService.downloadStream.listen((downloads) {
+      if (mounted) {
+        setState(() {
+          // Widget'ın videosuna ait indirme var mı kontrol et
+          // Not: Her kalite ayrı bir indirme olduğu için, sadece gösterilen widget'a ait olanı bul
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _downloadSubscription?.cancel();
+    super.dispose();
+  }
 
   Future<void> _showQualityDialog() async {
     if (widget.video.kaliteler == null || widget.video.kaliteler!.isEmpty) {
@@ -120,98 +142,72 @@ class _VideoListItemState extends State<VideoListItem> {
   }
 
   Future<void> _startDownload(VideoQualityModel? quality) async {
-    setState(() {
-      _isDownloading = true;
-      _progress = 0.0;
+    final selectedQuality = quality ?? VideoQualityModel(label: '720p', resolution: '1280x720');
+
+    // İndirmeyi başlat (arka planda çalışacak)
+    _downloadService.downloadVideo(widget.video, selectedQuality).then((path) {
+      // İndirme tamamlandığında
+      if (mounted && path != null) {
+        setState(() {
+          _isDownloaded = true;
+          _localPath = path;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'İndirme tamamlandı!',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }).catchError((e) {
+      // Hata yönetimi
+      if (e is DioException && e.type == DioExceptionType.cancel) {
+        // İptal edildi, normal
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'İndirme hatası: $e',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red[700],
+            duration: Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
     });
 
-    try {
-      // Servisi çalıştır
-      String? path = await _downloadService.downloadVideo(
-        widget.video,
-        quality ?? VideoQualityModel(label: '720p', resolution: '1280x720'), // Default
-        (newProgress) {
-          // Servis her haber verdiğinde ekranı güncelle
-          if (mounted) {
-            setState(() {
-              _progress = newProgress;
-            });
-          }
-        },
-      );
-
-      // İşlem bitince
-      if (mounted) {
-        // Widget hala ekranda mı diye kontrol et
-        setState(() {
-          _isDownloading = false;
-          if (path != null) {
-            _isDownloaded = true;
-            _localPath = path;
-            
-            // Başarı mesajı göster
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    Icon(Icons.check_circle, color: Colors.white),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'İndirme tamamlandı!',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
-                backgroundColor: Colors.green,
-                duration: Duration(seconds: 2),
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            );
-          }
-        });
-      }
-    } catch (e) {
-      // Cancel exceptions are expected and should be ignored
-      if (e is DioException && e.type == DioExceptionType.cancel) {
-        // User cancelled the download, do nothing
-      } else {
-        // Handle other errors
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  Icon(Icons.error_outline, color: Colors.white),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'İndirme hatası: $e',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ],
-              ),
-              backgroundColor: Colors.red[700],
-              duration: Duration(seconds: 3),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          );
-        }
-      }
-      if (mounted) {
-        setState(() {
-          _isDownloading = false;
-        });
-      }
-    }
+    // UI'yi hemen güncelle
+    setState(() {});
   }
 
   @override
@@ -308,8 +304,20 @@ class _VideoListItemState extends State<VideoListItem> {
 
   // Sağ tarafta ne göstereceğimize karar veren fonksiyon
   Widget _buildTrailingWidget() {
+    // Aktif indirmeleri kontrol et
+    final downloads = _downloadService.activeDownloads;
+    
+    // Bu video için aktif indirme var mı?
+    DownloadInfo? activeDownload;
+    for (var download in downloads.values) {
+      if (download.videoId == widget.video.id) {
+        activeDownload = download;
+        break;
+      }
+    }
+
     // 1. Durum: İndiriliyor... (Yüzde çubuğu ve durdur butonu göster)
-    if (_isDownloading) {
+    if (activeDownload != null && activeDownload.isDownloading) {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -319,9 +327,13 @@ class _VideoListItemState extends State<VideoListItem> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                CircularProgressIndicator(value: _progress, strokeWidth: 2),
+                CircularProgressIndicator(
+                  value: activeDownload.progress,
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                ),
                 Text(
-                  "%${(_progress * 100).toStringAsFixed(0)}",
+                  "%${(activeDownload.progress * 100).toStringAsFixed(0)}",
                   style: TextStyle(fontSize: 8),
                 ),
               ],
@@ -333,12 +345,14 @@ class _VideoListItemState extends State<VideoListItem> {
             padding: EdgeInsets.zero,
             constraints: BoxConstraints(),
             onPressed: () {
-              try {
-                _downloadService.cancelDownload();
-                setState(() {
-                  _isDownloading = false;
-                  _progress = 0.0;
-                });
+              if (activeDownload != null) {
+                _downloadService.cancelDownload(
+                  widget.video.id,
+                  activeDownload!.quality,
+                );
+              }
+              
+              if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Row(
@@ -359,8 +373,6 @@ class _VideoListItemState extends State<VideoListItem> {
                     ),
                   ),
                 );
-              } catch (e) {
-                print('Durdurma hatası: $e');
               }
             },
           ),
