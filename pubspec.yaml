@@ -1,0 +1,23 @@
+name: youtube_download_manager
+description: "Youtube Download Manager - A Flutter application to manage YouTube downloads."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.4.0
+  path_provider: ^2.1.2
+  open_filex: ^4.4.0
+  youtube_results: ^0.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
