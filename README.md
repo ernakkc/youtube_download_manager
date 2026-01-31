@@ -4,6 +4,20 @@
 
 YouTube Video Downloader, YouTube videolarını farklı kalite seçenekleriyle kolayca indirmenizi sağlayan modern ve çok platformlu bir uygulamadır.
 
+---
+
+## 🚀 Hızlı Erişim
+| Platform  | Kurulum Dosyası / Klasörü                                 |
+|-----------|----------------------------------------------------------|
+| **Android APK**  | [`builds/youtube_download_manager_android.apk`](builds/youtube_download_manager_android.apk) |
+| **Android AAB**  | [`builds/youtube_download_manager_android.aab`](builds/youtube_download_manager_android.aab) |
+| **macOS**        | [`builds/youtube_download_manager_macos.app`](builds/youtube_download_manager_macos.app)     |
+| **Web**          | [`builds/youtube_download_manager_web/`](builds/youtube_download_manager_web/)               |
+
+> **Not:** Windows ve Linux için derleme işlemi sadece ilgili işletim sistemlerinde yapılabilir.
+
+---
+
 ## Özellikler
 - YouTube'da arama yapma
 - Videoları 1080p, 720p, 480p gibi farklı kalitelerde indirme
@@ -11,14 +25,6 @@ YouTube Video Downloader, YouTube videolarını farklı kalite seçenekleriyle k
 - İndirme işlemi ekran kapansa veya sekme değişse bile devam eder
 - Kütüphane ekranında indirilen videoları görüntüleme ve açma
 - Modern ve kullanıcı dostu arayüz
-
-## Desteklenen Platformlar
-- Android (APK & AAB)
-- iOS (Xcode ile imzalama gerektirir)
-- macOS (Universal .app)
-- Web (builds/youtube_download_manager_web/)
-
-> **Not:** Windows ve Linux için derleme işlemi sadece ilgili işletim sistemlerinde yapılabilir.
 
 ## Kurulum
 
