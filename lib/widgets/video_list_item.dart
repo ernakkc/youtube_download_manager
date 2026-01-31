@@ -348,7 +348,7 @@ class _VideoListItemState extends State<VideoListItem> {
               if (activeDownload != null) {
                 _downloadService.cancelDownload(
                   widget.video.id,
-                  activeDownload!.quality,
+                  activeDownload.quality,
                 );
               }
               

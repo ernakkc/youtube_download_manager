@@ -84,7 +84,7 @@ class DownloadService {
 
       print('Stream bulundu: ${selectedStream.videoQualityLabel} - ${selectedStream.size.totalBytes} bytes');
 
-      String fileName = _sanitizeFileName(video.baslik) + '_${selectedStream.videoQualityLabel}.mp4';
+      String fileName = '${_sanitizeFileName(video.baslik)}_${selectedStream.videoQualityLabel}.mp4';
       final directory = await getApplicationDocumentsDirectory();
       final filePath = '${directory.path}/$fileName';
 
